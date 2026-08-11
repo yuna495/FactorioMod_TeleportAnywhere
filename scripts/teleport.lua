@@ -120,6 +120,12 @@ local function exit_remote_view(player)
   return true
 end
 
+local function close_remote_view_if_open(player)
+  if is_valid(player) and player.controller_type == defines.controllers.remote then
+    player.exit_remote_view()
+  end
+end
+
 local function teleport_physical_character(player, surface, destination)
   local character = player.character
   if is_valid(character) then
@@ -179,6 +185,7 @@ function Teleport.teleport_player_to_surface(player, surface, position, generate
     return false
   end
 
+  close_remote_view_if_open(player)
   print_player(player, { "teleport-anywhere.teleported" })
   return true
 end
