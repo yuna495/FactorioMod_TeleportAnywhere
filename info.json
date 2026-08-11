@@ -4,7 +4,7 @@
   "title": "Teleport Anywhere",
   "author": "yuna495",
   "factorio_version": "2.0",
-  "description": "Player-only teleport on the current surface, with optional Space Age planet teleport.",
+  "description": "Player-only teleportation anywhere on the current surface, with optional teleportation between visited planets in Space Age.",
   "dependencies": [
     "base >= 2.0.0",
     "? space-age"

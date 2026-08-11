@@ -1,63 +1,61 @@
 # Teleport Anywhere
 
-**Teleport Anywhere** は、Factorio 2.0向けのプレイヤー専用テレポートMODです。
+**Teleport Anywhere** is a player-only teleportation mod for Factorio 2.0.
 
-マップ上で指定した地点へ瞬時に移動できます。
+It allows you to instantly teleport to a selected location on the current surface.
 
-Space Ageを導入している場合は、さらに一度訪問した惑星への惑星間テレポートが利用できます。
+When Space Age is enabled, you can also teleport between planets that your force has already visited.
 
-このMODが移動させるのは**プレイヤーキャラクターのみ**です。
-アイテムや車両、列車、物流貨物などを転送する機能はありません。
+This mod teleports **only the player character**.
+Items, vehicles, trains, cargo, and other entities cannot be transported by teleportation.
 
-そのため、Factorio本来の物流を維持したまま、広大な工場や複数惑星を管理する際のプレイヤー自身の移動時間だけを短縮できます。
-
----
-
-## 主な機能
-
-### マップテレポート
-
-現在いるSurface内の任意地点へテレポートできます。
-
-1. 画面左上のTeleport Anywhereアイコンをクリック
-2. `Map Teleport` を選択
-3. Remote Viewで移動したい地点を範囲選択
-4. 選択範囲の中央付近へテレポート
-
-テレポート先に建築物、水、崖などがある場合は、Factorioのcollision判定を利用して周辺の安全な地点を自動的に検索します。
-
-安全に配置できる地点が見つからなかった場合、テレポートは実行されません。
+This means you can reduce the time spent traveling across large factories or between planets without replacing Factorio's normal logistics systems.
 
 ---
 
-## Space Age対応
+## Features
 
-Space Ageは**任意依存**です。
+### Map Teleport
 
-### Factorio 2.0のみ
+Teleport to a selected location on your current surface.
 
-以下の機能を利用できます。
+1. Click the Teleport Anywhere icon in the upper-left corner of the screen.
+2. Select `Map Teleport`.
+3. Open Remote View and select the area you want to teleport to.
+4. You will be teleported near the center of the selected area.
 
-* 現在Surface内でのMap Teleport
-* Remote Viewからの地点指定
-* 安全地点の自動探索
+If the destination is obstructed by buildings, water, cliffs, or other obstacles, the mod uses Factorio's collision system to automatically search for a nearby valid position.
+
+If no safe position can be found, the teleport is cancelled.
+
+---
+
+## Space Age Support
+
+Space Age is an **optional dependency**.
+
+### Factorio 2.0 without Space Age
+
+The following features are available:
+
+* Map Teleport within the current surface
+* Destination selection through Remote View
+* Automatic safe-position search
 
 ### Factorio 2.0 + Space Age
 
-上記に加えて、
+In addition to the features above, you can use:
 
-* 訪問済み惑星へのテレポート
-* MODによって追加された惑星への対応
-
-が利用できます。
+* Teleportation between previously visited planets
+* Support for planets added by other mods
 
 ---
 
-## 惑星間テレポート
+## Planet Teleport
 
-Space Ageが有効な場合、Teleport AnywhereのGUIに訪問済み惑星が表示されます。
+When Space Age is enabled, planets your force has already visited are displayed in the Teleport Anywhere GUI.
 
-例：
+Example:
 
 ```text
 Teleport Anywhere
@@ -73,189 +71,187 @@ Planets
 [ Fulgora ]
 ```
 
-目的の惑星を選択すると、その惑星へ直接テレポートします。
+Select a destination planet to teleport directly to it.
 
-### 訪問済み惑星のみ
+### Visited Planets Only
 
-まだ一度も訪れていない惑星にはテレポートできません。
+You cannot teleport to a planet that your force has never visited.
 
-VulcanusやFulgoraなどへ初めて向かう際は、通常通りSpace Platformを使用する必要があります。
+For your first trip to Vulcanus, Fulgora, or another planet, you must travel there normally using a Space Platform.
 
-一度実際に到達した惑星は、その後Teleport Anywhereから移動できるようになります。
+Once your force has physically reached a planet, that planet becomes available through Teleport Anywhere.
 
-そのため、このMODを利用してSpace Ageの初回惑星到達を省略することはできません。
-
----
-
-## 惑星での到着地点
-
-惑星間テレポートでは、以下の優先順位で到着地点を決定します。
-
-1. **Cargo Landing Pad付近**
-2. Cargo Landing Padが存在しない場合は、その惑星の**Spawn Position付近**
-
-基準地点へ無条件に配置するのではなく、その周辺からプレイヤーキャラクターを安全に配置できる地点を検索します。
+This prevents the mod from bypassing the initial planetary progression of Space Age.
 
 ---
 
-## MOD追加惑星
+## Planet Arrival Location
 
-惑星名はハードコードしていません。
+When teleporting between planets, the destination is selected in the following order:
 
-Space Age環境ではFactorioのPlanet情報から利用可能な惑星を取得するため、他のMODによって追加された惑星にも可能な限り自動対応します。
+1. Near the **Cargo Landing Pad**
+2. If no Cargo Landing Pad exists, near the planet's **spawn position**
 
-ただし、独自の特殊なSurfaceや通常のPlanetとして登録されていないSurfaceは対象外です。
+The player is not placed directly at the reference position. The mod searches the surrounding area for a valid position where the player character can safely be placed.
 
 ---
 
-## Space Platform
+## Modded Planet Support
 
-Space Platformへのテレポートには対応していません。
+Planet names are not hardcoded.
 
-以下の移動はできません。
+In Space Age, Teleport Anywhere retrieves available planets from Factorio's Planet data, allowing it to automatically support planets added by other mods whenever possible.
+
+Special-purpose surfaces and surfaces that are not registered as normal planets are not supported.
+
+---
+
+## Space Platforms
+
+Teleportation to or from Space Platforms is not supported.
+
+The following are not available:
 
 * Planet → Space Platform
 * Space Platform → Planet
 * Space Platform → Space Platform
-* Space Platform内でのMap Teleport
+* Map Teleport within a Space Platform
 
-Space Platformは通常のSpace Ageシステムを利用してください。
+Use the normal Space Age systems for Space Platform travel.
 
 ---
 
-## 操作方法
+## Controls
 
 ### GUI
 
-プレイ画面左上にTeleport Anywhereのアイコンが表示されます。
+A Teleport Anywhere icon is displayed in the upper-left corner of the game screen.
 
-クリックするとTeleport GUIを開閉できます。
+Click it to open or close the Teleport GUI.
 
-### キーボード
+### Keyboard Shortcut
 
-デフォルト：
+Default:
 
 ```text
 Alt + M
 ```
 
-Teleport GUIを開閉します。
+Opens or closes the Teleport GUI.
 
-キー設定はFactorioの操作設定から変更できます。
-
----
-
-## Map Teleportの地点指定について
-
-Map TeleportではFactorio標準のSelection Toolを使用します。
-
-`Map Teleport` を押したあと、目的地点を範囲選択してください。
-
-**選択した範囲の中央**がテレポートの基準地点になります。
-
-正確な1Tileを指定したい場合は、その地点を小さく選択してください。
+The key binding can be changed in Factorio's control settings.
 
 ---
 
-## 安全地点探索
+## Selecting a Map Teleport Destination
 
-Teleport Anywhereは、水や建築物などを独自に個別判定するのではなく、Factorioのcollision判定を利用します。
+Map Teleport uses Factorio's standard Selection Tool.
 
-指定地点にプレイヤーを配置できない場合は、その周辺から配置可能な地点を検索します。
+After clicking `Map Teleport`, select an area around your desired destination.
 
-安全地点が見つからなかった場合は、プレイヤーを不正な場所へ強制的に移動させることなく、テレポートを中止します。
+The **center of the selected area** is used as the target position.
 
----
-
-## テレポート対象
-
-テレポートするもの：
-
-* プレイヤーキャラクター
-* プレイヤーが通常所持しているインベントリ
-* 装備中のArmorやEquipment
-
-テレポートしないもの：
-
-* 車両
-* Spidertron
-* 列車
-* 建築物
-* ロボット
-* 物流貨物
-* その他のユニット
-
-車両に乗っている状態ではテレポートできません。
+For precise positioning, select a small area around the desired tile.
 
 ---
 
-## マルチプレイヤー
+## Safe Position Search
 
-マルチプレイヤーに対応しています。
+Teleport Anywhere does not use hardcoded checks for individual obstacles such as water or buildings.
 
-GUIやMap Teleportの地点選択状態はプレイヤーごとに独立して管理されます。
+Instead, it uses Factorio's collision system to determine whether the player character can be safely placed at the destination.
 
-Space Age環境での訪問済み惑星はForce単位で共有されます。
+If the selected position is blocked, the mod searches the surrounding area for a valid position.
 
-そのため、同じForceに所属するプレイヤーは、そのForceで訪問済みとして記録された惑星へテレポートできます。
-
----
-
-## このMODの目的
-
-Teleport Anywhereは、Factorioの物流をテレポートで置き換えるMODではありません。
-
-目的は、
-
-> **「プレイヤー自身の移動に掛かる待ち時間だけを省略すること」**
-
-です。
-
-資材を別の工場へ運ぶには列車やベルト、物流ロボットなどが必要です。
-
-Space Ageで別惑星へ資材を運ぶ場合も、ロケット、Space Platform、Cargo Landing Padなど通常の惑星間物流が必要です。
-
-一方、
-
-「遠く離れた工場の様子を直接確認したい」
-
-「Vulcanusの工場を少し修正したい」
-
-「Fulgoraを確認したあとNauvisへ戻りたい」
-
-といった、**プレイヤー自身が移動するためだけの時間をTeleport Anywhereで短縮できます。**
+If no safe position can be found, the teleport is cancelled rather than forcing the player into an invalid location.
 
 ---
 
-## 対応環境
+## What Gets Teleported
+
+Teleported with the player:
+
+* Player character
+* Items normally carried in the player's inventory
+* Equipped armor and equipment
+
+Not teleported:
+
+* Vehicles
+* Spidertrons
+* Trains
+* Buildings
+* Robots
+* Logistics cargo
+* Other units
+
+Teleportation is not available while the player is inside a vehicle.
+
+---
+
+## Multiplayer
+
+Multiplayer is supported.
+
+GUI state and Map Teleport selection state are managed separately for each player.
+
+In Space Age, visited planets are tracked per force.
+
+This means that players belonging to the same force can teleport to planets that have already been visited by that force.
+
+---
+
+## Design Philosophy
+
+Teleport Anywhere is not intended to replace Factorio's logistics systems with teleportation.
+
+Its purpose is:
+
+> **To remove the travel time required only to move the player between places they can already reach.**
+
+Moving resources between factories still requires belts, trains, logistic robots, or other normal logistics systems.
+
+Likewise, transporting resources between planets in Space Age still requires rockets, Space Platforms, Cargo Landing Pads, and the normal interplanetary logistics system.
+
+Teleport Anywhere is intended for situations such as:
+
+* Quickly checking a distant part of your factory
+* Making a small adjustment to your factory on Vulcanus
+* Returning to Nauvis after checking something on Fulgora
+
+In other words, the mod reduces **player travel time** without replacing the logistics gameplay itself.
+
+---
+
+## Requirements
 
 * Factorio 2.0
-* Space Age（任意）
+* Space Age (optional)
 
-Space AgeなしでもMap Teleportを利用できます。
+Map Teleport is fully available without Space Age.
 
 ---
 
 ## Version 1.0
 
-実装機能：
+Features:
 
 * Map Teleport
-* Selection Toolによる地点指定
-* Remote View対応
-* 安全地点探索
+* Destination selection using a Selection Tool
+* Remote View support
+* Safe-position search
 * GUI
-* キーボードショートカット
-* Space Age任意対応
-* 訪問済み惑星へのテレポート
-* Cargo Landing Pad付近への到着
-* Spawn Positionへのフォールバック
-* MOD追加惑星への動的対応
-* マルチプレイヤー対応
-* 英語・日本語対応
+* Keyboard shortcut
+* Optional Space Age support
+* Teleportation between visited planets
+* Cargo Landing Pad arrival
+* Spawn-position fallback
+* Dynamic support for modded planets
+* Multiplayer support
+* English and Japanese localization
 
 ---
 
 ## License
 
-ライセンスについてはリポジトリ内のLICENSEファイルを参照してください。
+MIT
