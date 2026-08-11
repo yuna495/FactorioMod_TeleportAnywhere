@@ -1,4 +1,6 @@
 local Constants = require("scripts.constants")
+local PlanetTeleport = require("scripts.planet_teleport")
+local Planets = require("scripts.planets")
 local Runtime = require("scripts.runtime")
 local State = require("scripts.state")
 local Teleport = require("scripts.teleport")
@@ -8,14 +10,6 @@ local Gui = {}
 
 local function is_valid(object)
   return object and object.valid
-end
-
-local function get_planets()
-  return require("scripts.planets")
-end
-
-local function get_planet_teleport()
-  return require("scripts.planet_teleport")
 end
 
 local function get_button_flow(player)
@@ -86,7 +80,6 @@ local function add_titlebar(frame)
 end
 
 local function add_current_label(content, current_planet)
-  local Planets = get_planets()
   local current_display_name = current_planet and Planets.get_display_name(current_planet)
   if current_display_name then
     content.add({
@@ -131,8 +124,6 @@ local function add_planet_button(list, entry, current_planet)
 end
 
 local function add_space_age_planets(content, player, current_planet)
-  local Planets = get_planets()
-
   content.add({
     type = "line",
     direction = "horizontal"
@@ -170,7 +161,7 @@ function Gui.build(player)
 
   Gui.destroy(player)
   if Runtime.is_space_age_enabled() then
-    get_planets().mark_player_planet(player)
+    Planets.mark_player_planet(player)
   end
 
   local player_state = State.get_player(player.index)
@@ -194,7 +185,7 @@ function Gui.build(player)
   content.style.minimal_width = 220
 
   if Runtime.is_space_age_enabled() then
-    local current_planet = get_planets().get_current_planet(player)
+    local current_planet = Planets.get_current_planet(player)
     add_current_label(content, current_planet)
     add_map_button(content, true)
     add_space_age_planets(content, player, current_planet)
@@ -256,7 +247,7 @@ function Gui.handle_click(event)
   local tags = element.tags or {}
   if tags.teleport_anywhere_action == "planet" and tags.planet then
     if Runtime.is_space_age_enabled() then
-      get_planet_teleport().teleport_to_planet(player, tags.planet)
+      PlanetTeleport.teleport_to_planet(player, tags.planet)
     end
     Gui.refresh(player)
   end

@@ -120,6 +120,22 @@ local function exit_remote_view(player)
   return true
 end
 
+local function teleport_physical_character(player, surface, destination)
+  local character = player.character
+  if is_valid(character) then
+    local teleported = character.teleport(destination, surface, true, false)
+    if teleported then
+      return true
+    end
+  end
+
+  if not exit_remote_view(player) then
+    return false
+  end
+
+  return player.teleport(destination, surface, true, false)
+end
+
 local function print_unsupported_current_surface(player)
   local surface = get_physical_surface(player)
   if Runtime.is_space_age_enabled() and is_valid(surface) and is_valid(surface.platform) then
@@ -157,11 +173,7 @@ function Teleport.teleport_player_to_surface(player, surface, position, generate
     return false
   end
 
-  if not exit_remote_view(player) then
-    return false
-  end
-
-  local teleported = player.teleport(destination, surface, true, false)
+  local teleported = teleport_physical_character(player, surface, destination)
   if not teleported then
     print_player(player, { "teleport-anywhere.error-teleport-failed" })
     return false

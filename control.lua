@@ -1,5 +1,6 @@
 local Constants = require("scripts.constants")
 local Gui = require("scripts.gui")
+local Planets = require("scripts.planets")
 local Runtime = require("scripts.runtime")
 local State = require("scripts.state")
 local Teleport = require("scripts.teleport")
@@ -16,7 +17,7 @@ local function setup_player(player)
   State.get_player(player.index)
   Teleport.cancel_map_selection(player.index)
   if Runtime.is_space_age_enabled() then
-    require("scripts.planets").mark_player_planet(player)
+    Planets.mark_player_planet(player)
   end
   Gui.ensure_button(player)
   Gui.refresh(player)
@@ -73,7 +74,7 @@ if Runtime.is_space_age_enabled() then
   end)
 
   script.on_event(defines.events.on_forces_merged, function(event)
-    require("scripts.planets").merge_force_visits(event.source_name, event.destination)
+    Planets.merge_force_visits(event.source_name, event.destination)
     setup_all_players()
   end)
 end
