@@ -1,5 +1,5 @@
 local Constants = require("scripts.constants")
-local Planets = require("scripts.planets")
+local Runtime = require("scripts.runtime")
 local State = require("scripts.state")
 local Teleport = require("scripts.teleport")
 local mod_gui = require("__core__.lualib.mod-gui")
@@ -8,6 +8,14 @@ local Gui = {}
 
 local function is_valid(object)
   return object and object.valid
+end
+
+local function get_planets()
+  return require("scripts.planets")
+end
+
+local function get_planet_teleport()
+  return require("scripts.planet_teleport")
 end
 
 local function get_button_flow(player)
@@ -78,6 +86,7 @@ local function add_titlebar(frame)
 end
 
 local function add_current_label(content, current_planet)
+  local Planets = get_planets()
   local current_display_name = current_planet and Planets.get_display_name(current_planet)
   if current_display_name then
     content.add({
@@ -121,37 +130,8 @@ local function add_planet_button(list, entry, current_planet)
   })
 end
 
-function Gui.build(player)
-  if not is_valid(player) then
-    return
-  end
-
-  Gui.destroy(player)
-  Planets.mark_player_planet(player)
-
-  local player_state = State.get_player(player.index)
-  player_state.gui_open = true
-
-  local frame = get_frame_flow(player).add({
-    type = "frame",
-    name = Constants.gui.frame,
-    direction = "vertical",
-    style = mod_gui.frame_style
-  })
-
-  add_titlebar(frame)
-
-  local content = frame.add({
-    type = "flow",
-    direction = "vertical"
-  })
-  content.style.padding = 8
-  content.style.vertical_spacing = 6
-  content.style.minimal_width = 220
-
-  local current_planet = Planets.get_current_planet(player)
-  add_current_label(content, current_planet)
-  add_map_button(content, current_planet)
+local function add_space_age_planets(content, player, current_planet)
+  local Planets = get_planets()
 
   content.add({
     type = "line",
@@ -180,6 +160,46 @@ function Gui.build(player)
     for _, entry in ipairs(visited_planets) do
       add_planet_button(list, entry, current_planet)
     end
+  end
+end
+
+function Gui.build(player)
+  if not is_valid(player) then
+    return
+  end
+
+  Gui.destroy(player)
+  if Runtime.is_space_age_enabled() then
+    get_planets().mark_player_planet(player)
+  end
+
+  local player_state = State.get_player(player.index)
+  player_state.gui_open = true
+
+  local frame = get_frame_flow(player).add({
+    type = "frame",
+    name = Constants.gui.frame,
+    direction = "vertical",
+    style = mod_gui.frame_style
+  })
+
+  add_titlebar(frame)
+
+  local content = frame.add({
+    type = "flow",
+    direction = "vertical"
+  })
+  content.style.padding = 8
+  content.style.vertical_spacing = 6
+  content.style.minimal_width = 220
+
+  if Runtime.is_space_age_enabled() then
+    local current_planet = get_planets().get_current_planet(player)
+    add_current_label(content, current_planet)
+    add_map_button(content, true)
+    add_space_age_planets(content, player, current_planet)
+  else
+    add_map_button(content, true)
   end
 
   player.opened = frame
@@ -235,7 +255,9 @@ function Gui.handle_click(event)
 
   local tags = element.tags or {}
   if tags.teleport_anywhere_action == "planet" and tags.planet then
-    Teleport.teleport_to_planet(player, tags.planet)
+    if Runtime.is_space_age_enabled() then
+      get_planet_teleport().teleport_to_planet(player, tags.planet)
+    end
     Gui.refresh(player)
   end
 end

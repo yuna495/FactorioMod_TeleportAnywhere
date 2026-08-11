@@ -1,11 +1,24 @@
 local Constants = require("scripts.constants")
-local Planets = require("scripts.planets")
+local Runtime = require("scripts.runtime")
 local State = require("scripts.state")
 
 local Teleport = {}
 
 local function is_valid(object)
   return object and object.valid
+end
+
+local function get_physical_surface(player)
+  if not is_valid(player) then
+    return nil
+  end
+
+  local surface = player.physical_surface
+  if is_valid(surface) then
+    return surface
+  end
+
+  return nil
 end
 
 local function print_player(player, message)
@@ -38,13 +51,6 @@ local function area_center(area)
     x = (get_position_component(left_top, "x", 1) + get_position_component(right_bottom, "x", 1)) / 2,
     y = (get_position_component(left_top, "y", 2) + get_position_component(right_bottom, "y", 2)) / 2
   }
-end
-
-local function distance_squared(left, right)
-  local dx = get_position_component(left, "x", 1) - get_position_component(right, "x", 1)
-  local dy = get_position_component(left, "y", 2) - get_position_component(right, "y", 2)
-
-  return dx * dx + dy * dy
 end
 
 local function has_blocking_vehicle(player)
@@ -115,21 +121,33 @@ local function exit_remote_view(player)
 end
 
 local function print_unsupported_current_surface(player)
-  local surface = Planets.get_physical_surface(player)
-  if is_valid(surface) and is_valid(surface.platform) then
+  local surface = get_physical_surface(player)
+  if Runtime.is_space_age_enabled() and is_valid(surface) and is_valid(surface.platform) then
     print_player(player, { "teleport-anywhere.error-space-platform" })
   else
-    print_player(player, { "teleport-anywhere.error-not-planet" })
+    print_player(player, { "teleport-anywhere.error-no-surface" })
   end
 end
 
-local function teleport_player_to(player, surface, position, generate_chunks)
+local function is_supported_map_surface(surface)
+  if not is_valid(surface) then
+    return false
+  end
+
+  if Runtime.is_space_age_enabled() and is_valid(surface.platform) then
+    return false
+  end
+
+  return true
+end
+
+function Teleport.teleport_player_to_surface(player, surface, position, generate_chunks)
   if not can_use_player_character(player) then
     return false
   end
 
   if not is_valid(surface) then
-    print_player(player, { "teleport-anywhere.error-not-planet" })
+    print_player(player, { "teleport-anywhere.error-no-surface" })
     return false
   end
 
@@ -149,65 +167,8 @@ local function teleport_player_to(player, surface, position, generate_chunks)
     return false
   end
 
-  Planets.mark_player_planet(player)
   print_player(player, { "teleport-anywhere.teleported" })
   return true
-end
-
-local function find_cargo_landing_pad(surface, force)
-  local spawn = force.get_spawn_position(surface)
-  local pads = surface.find_entities_filtered({
-    type = Constants.entity_types.cargo_landing_pad,
-    force = force
-  })
-
-  local best_pad = nil
-  local best_distance = nil
-
-  for _, pad in pairs(pads) do
-    if is_valid(pad) then
-      local distance = distance_squared(spawn, pad.position)
-      if not best_distance or distance < best_distance then
-        best_pad = pad
-        best_distance = distance
-      end
-    end
-  end
-
-  return best_pad
-end
-
-function Teleport.teleport_to_planet(player, planet_name)
-  if not can_use_player_character(player) then
-    return false
-  end
-
-  local current_planet = Planets.get_current_planet(player)
-  if not current_planet then
-    print_unsupported_current_surface(player)
-    return false
-  end
-
-  if current_planet.name == planet_name then
-    print_player(player, { "teleport-anywhere.error-current-planet" })
-    return false
-  end
-
-  if not Planets.is_visited(player.force, planet_name) then
-    print_player(player, { "teleport-anywhere.error-unvisited-planet" })
-    return false
-  end
-
-  local surface = Planets.get_planet_surface(planet_name)
-  if not surface then
-    print_player(player, { "teleport-anywhere.error-no-planet-surface" })
-    return false
-  end
-
-  local cargo_landing_pad = find_cargo_landing_pad(surface, player.force)
-  local base_position = cargo_landing_pad and cargo_landing_pad.position or player.force.get_spawn_position(surface)
-
-  return teleport_player_to(player, surface, base_position, true)
 end
 
 function Teleport.begin_map_selection(player)
@@ -215,9 +176,8 @@ function Teleport.begin_map_selection(player)
     return false
   end
 
-  local current_surface = Planets.get_physical_surface(player)
-  local current_planet = Planets.get_surface_planet(current_surface)
-  if not current_planet then
+  local current_surface = get_physical_surface(player)
+  if not is_supported_map_surface(current_surface) then
     print_unsupported_current_surface(player)
     return false
   end
@@ -292,7 +252,7 @@ function Teleport.handle_map_selection(event)
 
   local player_state = State.get_player(player.index)
   local expected_surface_index = player_state.map_surface_index
-  local current_surface = Planets.get_physical_surface(player)
+  local current_surface = get_physical_surface(player)
 
   player_state.map_selecting = false
   player_state.map_surface_index = nil
@@ -312,12 +272,12 @@ function Teleport.handle_map_selection(event)
     return true
   end
 
-  if not Planets.get_surface_planet(event.surface) then
-    print_player(player, { "teleport-anywhere.error-not-planet" })
+  if not is_supported_map_surface(event.surface) then
+    print_player(player, { "teleport-anywhere.error-space-platform" })
     return true
   end
 
-  teleport_player_to(player, event.surface, area_center(event.area), false)
+  Teleport.teleport_player_to_surface(player, event.surface, area_center(event.area), false)
   return true
 end
 

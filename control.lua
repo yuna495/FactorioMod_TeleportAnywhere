@@ -1,6 +1,6 @@
 local Constants = require("scripts.constants")
 local Gui = require("scripts.gui")
-local Planets = require("scripts.planets")
+local Runtime = require("scripts.runtime")
 local State = require("scripts.state")
 local Teleport = require("scripts.teleport")
 
@@ -15,7 +15,9 @@ local function setup_player(player)
 
   State.get_player(player.index)
   Teleport.cancel_map_selection(player.index)
-  Planets.mark_player_planet(player)
+  if Runtime.is_space_age_enabled() then
+    require("scripts.planets").mark_player_planet(player)
+  end
   Gui.ensure_button(player)
   Gui.refresh(player)
 end
@@ -63,16 +65,18 @@ script.on_event(defines.events.on_player_changed_force, function(event)
   setup_player(game.get_player(event.player_index))
 end)
 
-script.on_event(defines.events.on_cargo_pod_finished_descending, function(event)
-  if event.player_index then
-    setup_player(game.get_player(event.player_index))
-  end
-end)
+if Runtime.is_space_age_enabled() then
+  script.on_event(defines.events.on_cargo_pod_finished_descending, function(event)
+    if event.player_index then
+      setup_player(game.get_player(event.player_index))
+    end
+  end)
 
-script.on_event(defines.events.on_forces_merged, function(event)
-  Planets.merge_force_visits(event.source_name, event.destination)
-  setup_all_players()
-end)
+  script.on_event(defines.events.on_forces_merged, function(event)
+    require("scripts.planets").merge_force_visits(event.source_name, event.destination)
+    setup_all_players()
+  end)
+end
 
 script.on_event(defines.events.on_gui_click, Gui.handle_click)
 script.on_event(defines.events.on_gui_closed, Gui.handle_closed)

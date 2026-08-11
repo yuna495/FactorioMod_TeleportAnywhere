@@ -16,10 +16,6 @@ Constants.gui = {
   planet_list = "teleport_anywhere_planet_list"
 }
 
-Constants.entity_types = {
-  cargo_landing_pad = "cargo-landing-pad"
-}
-
 Constants.search = {
   radius = 64,
   precision = 0.5,
