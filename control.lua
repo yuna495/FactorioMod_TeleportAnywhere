@@ -72,12 +72,12 @@ if Runtime.is_space_age_enabled() then
       setup_player(game.get_player(event.player_index))
     end
   end)
-
-  script.on_event(defines.events.on_forces_merged, function(event)
-    Planets.merge_force_visits(event.source_name, event.destination)
-    setup_all_players()
-  end)
 end
+
+script.on_event(defines.events.on_forces_merged, function(event)
+  Planets.merge_force_visits(event.source_name, event.destination)
+  setup_all_players()
+end)
 
 script.on_event(defines.events.on_gui_click, Gui.handle_click)
 script.on_event(defines.events.on_gui_closed, Gui.handle_closed)

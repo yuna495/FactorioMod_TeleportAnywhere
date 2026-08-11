@@ -16,6 +16,17 @@ local function print_player(player, message)
   end
 end
 
+local function print_unsupported_current_surface(player)
+  local surface = Planets.get_physical_surface(player)
+  if is_valid(surface) and is_valid(surface.platform) then
+    print_player(player, { "teleport-anywhere.error-space-platform" })
+  elseif is_valid(surface) then
+    print_player(player, { "teleport-anywhere.error-not-planet" })
+  else
+    print_player(player, { "teleport-anywhere.error-no-surface" })
+  end
+end
+
 local function get_position_component(position, key, index)
   if position[key] ~= nil then
     return position[key]
@@ -61,7 +72,7 @@ function PlanetTeleport.teleport_to_planet(player, planet_name)
 
   local current_planet = Planets.get_current_planet(player)
   if not current_planet then
-    print_player(player, { "teleport-anywhere.error-space-platform" })
+    print_unsupported_current_surface(player)
     return false
   end
 

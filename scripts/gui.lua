@@ -115,7 +115,7 @@ local function add_planet_button(list, entry, current_planet)
   list.add({
     type = "button",
     caption = caption,
-    enabled = not is_current,
+    enabled = current_planet ~= nil and not is_current,
     tags = {
       teleport_anywhere_action = "planet",
       planet = entry.name
@@ -187,7 +187,7 @@ function Gui.build(player)
   if Runtime.is_space_age_enabled() then
     local current_planet = Planets.get_current_planet(player)
     add_current_label(content, current_planet)
-    add_map_button(content, true)
+    add_map_button(content, current_planet)
     add_space_age_planets(content, player, current_planet)
   else
     add_map_button(content, true)
