@@ -1,0 +1,12 @@
+{
+  "name": "TeleportAnywhere",
+  "version": "1.0.0",
+  "title": "Teleport Anywhere",
+  "author": "yuna495",
+  "factorio_version": "2.0",
+  "description": "Player-only teleport between safe points on the current planet and previously visited planets.",
+  "dependencies": [
+    "base >= 2.0",
+    "space-age >= 2.0"
+  ]
+}

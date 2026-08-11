@@ -1,0 +1,8 @@
+dist/
+*.zip
+.agents/
+AGENTS.md
+SPEC.md
+TeleportAnywhere_*/
+reference/
+元画像.png
