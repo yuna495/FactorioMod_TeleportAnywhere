@@ -120,6 +120,25 @@ local function exit_remote_view(player)
   return true
 end
 
+local function open_remote_view_for_map_selection(player, surface)
+  if not is_valid(player) or not is_valid(surface) then
+    return false
+  end
+
+  local character = player.character
+  if not is_valid(character) then
+    return false
+  end
+
+  player.set_controller({
+    type = defines.controllers.remote,
+    surface = surface,
+    position = player.physical_position
+  })
+
+  return player.controller_type == defines.controllers.remote
+end
+
 local function close_remote_view_if_open(player)
   if is_valid(player) and player.controller_type == defines.controllers.remote then
     player.exit_remote_view()
@@ -209,6 +228,13 @@ function Teleport.begin_map_selection(player)
 
   if cursor_stack.valid_for_read and cursor_stack.name ~= Constants.prototypes.map_tool then
     print_player(player, { "teleport-anywhere.error-cursor-busy" })
+    return false
+  end
+
+  open_remote_view_for_map_selection(player, current_surface)
+  cursor_stack = player.cursor_stack
+  if not cursor_stack then
+    print_player(player, { "teleport-anywhere.error-cursor-unavailable" })
     return false
   end
 
