@@ -1,0 +1,5 @@
+---------------------------------------------------------------------------------------------------
+Version: 1.0.1
+Date: 21. 08. 2026
+  Features:
+    - Changed it so that clicking `Map Teleport` opens the map screen.
