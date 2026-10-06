@@ -12,7 +12,6 @@ Constants.gui = {
   toggle_button = "teleport_anywhere_toggle_button",
   frame = "teleport_anywhere_frame",
   close_button = "teleport_anywhere_close_button",
-  map_button = "teleport_anywhere_map_button",
   planet_list = "teleport_anywhere_planet_list"
 }
 

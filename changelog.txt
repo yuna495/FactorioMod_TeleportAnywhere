@@ -1,4 +1,18 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.2
+Date: 06. 10. 2026
+  Features:
+    - Alt+M and the Teleport icon now start map destination selection immediately.
+    - Space Age shows a non-modal visited-planet panel alongside map selection.
+    - Press the key or icon again, close the panel, or put down the tool to cancel.
+  Changes:
+    - Removed the Map Teleport mode button; preserved customized key bindings.
+    - Planet teleport failures keep the planet panel available for another choice.
+  Bugfixes:
+    - Restore character view on cancellation only when the mod opened Remote View.
+    - Clean up temporary state on failed starts, selection results, lifecycle events and updates.
+    - Preserve the Space Age restriction against non-planet surfaces when starting directly.
+---------------------------------------------------------------------------------------------------
 Version: 1.0.1
 Date: 21. 08. 2026
   Features:

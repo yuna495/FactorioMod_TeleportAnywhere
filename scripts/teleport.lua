@@ -136,7 +136,7 @@ local function open_remote_view_for_map_selection(player, surface)
     position = player.physical_position
   })
 
-  return player.controller_type == defines.controllers.remote
+  return player.controller_type == defines.controllers.remote and player.surface.index == surface.index
 end
 
 local function close_remote_view_if_open(player)
@@ -165,6 +165,8 @@ local function print_unsupported_current_surface(player)
   local surface = get_physical_surface(player)
   if Runtime.is_space_age_enabled() and is_valid(surface) and is_valid(surface.platform) then
     print_player(player, { "teleport-anywhere.error-space-platform" })
+  elseif Runtime.is_space_age_enabled() and is_valid(surface) then
+    print_player(player, { "teleport-anywhere.error-not-planet" })
   else
     print_player(player, { "teleport-anywhere.error-no-surface" })
   end
@@ -175,8 +177,8 @@ local function is_supported_map_surface(surface)
     return false
   end
 
-  if Runtime.is_space_age_enabled() and is_valid(surface.platform) then
-    return false
+  if Runtime.is_space_age_enabled() then
+    return not is_valid(surface.platform) and is_valid(surface.planet)
   end
 
   return true
@@ -226,20 +228,38 @@ function Teleport.begin_map_selection(player)
     return false
   end
 
-  if cursor_stack.valid_for_read and cursor_stack.name ~= Constants.prototypes.map_tool then
+  if player.cursor_ghost or (cursor_stack.valid_for_read and cursor_stack.name ~= Constants.prototypes.map_tool) then
     print_player(player, { "teleport-anywhere.error-cursor-busy" })
     return false
   end
 
-  open_remote_view_for_map_selection(player, current_surface)
+  local player_state = State.get_player(player.index)
+  player_state.opened_remote_view = player.controller_type ~= defines.controllers.remote
+  player_state.origin_surface_index = current_surface.index
+  local opened_ok, opened = pcall(open_remote_view_for_map_selection, player, current_surface)
+  if not opened_ok or not opened then
+    print_player(player, { "teleport-anywhere.error-open-remote-view" })
+    return false
+  end
   cursor_stack = player.cursor_stack
   if not cursor_stack then
     print_player(player, { "teleport-anywhere.error-cursor-unavailable" })
     return false
   end
 
+  if player.cursor_ghost then
+    print_player(player, { "teleport-anywhere.error-cursor-busy" })
+    return false
+  end
+
   if not cursor_stack.valid_for_read then
-    cursor_stack.set_stack({ name = Constants.prototypes.map_tool, count = 1 })
+    local tool_ok, prepared = pcall(function()
+      return cursor_stack.set_stack({ name = Constants.prototypes.map_tool, count = 1 })
+    end)
+    if not tool_ok or not prepared then
+      print_player(player, { "teleport-anywhere.error-cursor-unavailable" })
+      return false
+    end
   end
 
   if not cursor_stack.valid_for_read or cursor_stack.name ~= Constants.prototypes.map_tool then
@@ -247,7 +267,6 @@ function Teleport.begin_map_selection(player)
     return false
   end
 
-  local player_state = State.get_player(player.index)
   player_state.map_selecting = true
   player_state.map_surface_index = current_surface.index
 
@@ -255,23 +274,34 @@ function Teleport.begin_map_selection(player)
   return true
 end
 
-function Teleport.cancel_map_selection_if_cursor_changed(player)
+function Teleport.is_selection_tool_missing(player)
   if not is_valid(player) then
-    return
+    return false
   end
 
   local player_state = State.get_player(player.index)
   if not player_state.map_selecting then
-    return
+    return false
   end
 
   local cursor_stack = player.cursor_stack
   if cursor_stack and cursor_stack.valid_for_read and cursor_stack.name == Constants.prototypes.map_tool then
-    return
+    return false
   end
 
-  player_state.map_selecting = false
-  player_state.map_surface_index = nil
+  return true
+end
+
+-- Clear state before touching the cursor/controller: both can cause events.
+function Teleport.finish(player)
+  local player_state = State.get_player(player.index)
+  local restore_character = player_state.opened_remote_view
+  player_state.opened_remote_view = nil
+  player_state.origin_surface_index = nil
+  Teleport.cancel_map_selection(player.index)
+  if restore_character then
+    close_remote_view_if_open(player)
+  end
 end
 
 function Teleport.cancel_map_selection(player_index)
@@ -296,12 +326,14 @@ function Teleport.handle_map_selection(event)
   end
 
   local player_state = State.get_player(player.index)
+  -- A queued selection event must not close a planet retry panel.
+  if not player_state.map_selecting then
+    return false
+  end
   local expected_surface_index = player_state.map_surface_index
   local current_surface = get_physical_surface(player)
 
-  player_state.map_selecting = false
-  player_state.map_surface_index = nil
-  clear_map_tool_from_cursor(player)
+  Teleport.cancel_map_selection(player.index)
 
   if not expected_surface_index then
     return true
@@ -318,7 +350,7 @@ function Teleport.handle_map_selection(event)
   end
 
   if not is_supported_map_surface(event.surface) then
-    print_player(player, { "teleport-anywhere.error-space-platform" })
+    print_unsupported_current_surface(player)
     return true
   end
 

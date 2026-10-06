@@ -19,10 +19,15 @@ This means you can reduce the time spent traveling across large factories or bet
 
 Teleport to a selected location on your current surface.
 
-1. Click the Teleport Anywhere icon in the upper-left corner of the screen.
-2. Select `Map Teleport`.
-3. Open Remote View and select the area you want to teleport to.
-4. You will be teleported near the center of the selected area.
+1. Press **Alt+M** or click the Teleport Anywhere icon in the upper-left corner.
+2. Remote View opens on your physical surface with the selection tool ready.
+3. Select an area to teleport near its center. There is no Map Teleport button.
+
+Selection is restricted to the physical surface where you started, even if you browse another surface in Remote View. Success or failure ends selection and closes the planet panel.
+
+Press Alt+M or the icon again, close the planet panel, or put down the selection tool to cancel. If the mod opened Remote View, cancellation returns you to character control. If you were already in Remote View, cancellation leaves it open.
+
+Clear your cursor before starting. Teleport cannot start without a character or while riding a vehicle.
 
 If the destination is obstructed by buildings, water, cliffs, or other obstacles, the mod uses Factorio's collision system to automatically search for a nearby valid position.
 
@@ -53,7 +58,7 @@ In addition to the features above, you can use:
 
 ## Planet Teleport
 
-When Space Age is enabled, planets your force has already visited are displayed in the Teleport Anywhere GUI.
+When Space Age is enabled, a small planet panel appears at the upper left alongside map selection. Only planets your force has visited are listed; the current planet is marked and disabled. Without Space Age, no extra panel appears.
 
 Example:
 
@@ -62,8 +67,6 @@ Teleport Anywhere
 
 Current: Nauvis
 
-[ Map Teleport ]
-
 Planets
 
 [ Nauvis - Current ]
@@ -71,7 +74,7 @@ Planets
 [ Fulgora ]
 ```
 
-Select a destination planet to teleport directly to it.
+Select a destination planet to stop map selection and teleport to its arrival point. Success closes the panel. If the teleport fails, the panel stays open for another choice, with the map selection tool removed. Press Alt+M or the icon to close it; the next activation starts map selection again. Selecting arbitrary positions on other planets is not supported.
 
 ### Visited Planets Only
 
@@ -127,7 +130,7 @@ Use the normal Space Age systems for Space Platform travel.
 
 A Teleport Anywhere icon is displayed in the upper-left corner of the game screen.
 
-Click it to open or close the Teleport GUI.
+Click it to start destination selection or cancel the active teleport operation.
 
 ### Keyboard Shortcut
 
@@ -137,9 +140,9 @@ Default:
 Alt + M
 ```
 
-Opens or closes the Teleport GUI.
+Starts destination selection or cancels the active teleport operation.
 
-The key binding can be changed in Factorio's control settings.
+The key binding can be changed in Factorio's control settings. Existing customized bindings are preserved on update.
 
 ---
 
@@ -147,7 +150,7 @@ The key binding can be changed in Factorio's control settings.
 
 Map Teleport uses Factorio's standard Selection Tool.
 
-After clicking `Map Teleport`, select an area around your desired destination.
+After pressing Alt+M or the Teleport icon, select an area around your desired destination.
 
 The **center of the selected area** is used as the target position.
 
@@ -231,6 +234,14 @@ In other words, the mod reduces **player travel time** without replacing the log
 Map Teleport is fully available without Space Age.
 
 ---
+
+## Updating to 1.0.2
+
+Updating clears old teleport panels and temporary selection tools while preserving your force's visited planets. Existing saves do not require a reset.
+
+## Verification
+
+See [tests/README.md](tests/README.md) for automated checks and the remaining interactive test checklist.
 
 ## Version 1.0
 
