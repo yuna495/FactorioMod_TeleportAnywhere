@@ -13,10 +13,6 @@ local function is_valid(object)
   return object and object.valid
 end
 
-local function get_button_flow(player)
-  return mod_gui.get_button_flow(player)
-end
-
 local function get_frame_flow(player)
   return mod_gui.get_frame_flow(player)
 end
@@ -26,24 +22,27 @@ local function get_frame(player)
   return frame_flow and frame_flow[Constants.gui.frame]
 end
 
-function Gui.ensure_button(player)
+function Gui.remove_legacy_button(player)
   if not is_valid(player) then
     return
   end
 
-  local button_flow = get_button_flow(player)
-  if button_flow[Constants.gui.toggle_button] then
-    button_flow[Constants.gui.toggle_button].tooltip = { "teleport-anywhere.open-tooltip" }
-    return
+  -- Do not call get_button_flow: migration must not create shared containers.
+  local function remove_from(flow)
+    local button = flow and flow[Constants.gui.legacy_toggle_button]
+    if button then button.destroy() end
   end
+  local top = player.gui.top
+  remove_from(top.mod_gui_button_flow)
+  local frame = top.mod_gui_top_frame
+  remove_from(frame and frame.mod_gui_inner_frame)
+end
 
-  button_flow.add({
-    type = "sprite-button",
-    name = Constants.gui.toggle_button,
-    sprite = "item/" .. Constants.prototypes.map_tool,
-    style = mod_gui.button_style,
-    tooltip = { "teleport-anywhere.open-tooltip" }
-  })
+function Gui.sync_shortcut(player)
+  if not is_valid(player) then return end
+  local player_state = State.get_player(player.index)
+  player.set_shortcut_toggled(Constants.prototypes.shortcut,
+    player_state.map_selecting == true or player_state.gui_open == true)
 end
 
 function Gui.destroy(player)
@@ -194,6 +193,7 @@ function Gui.cancel(player)
   State.get_player(player.index).gui_open = false
   Teleport.finish(player)
   Gui.destroy(player)
+  Gui.sync_shortcut(player)
   closing[player.index] = nil
 end
 
@@ -202,7 +202,6 @@ function Gui.toggle(player)
     return
   end
 
-  Gui.ensure_button(player)
   local player_state = State.get_player(player.index)
   if player_state.map_selecting or player_state.gui_open or get_frame(player) then
     Gui.cancel(player)
@@ -216,6 +215,7 @@ function Gui.toggle(player)
   else
     Gui.cancel(player)
   end
+  Gui.sync_shortcut(player)
 end
 
 function Gui.handle_map_selection(event)
@@ -239,11 +239,6 @@ function Gui.handle_click(event)
     return
   end
 
-  if element.name == Constants.gui.toggle_button then
-    Gui.toggle(player)
-    return
-  end
-
   if element.name == Constants.gui.close_button then
     Gui.cancel(player)
     return
@@ -258,6 +253,7 @@ function Gui.handle_click(event)
       if PlanetTeleport.teleport_to_planet(player, tags.planet) then
         Gui.cancel(player)
       end
+      Gui.sync_shortcut(player)
     end
   end
 end

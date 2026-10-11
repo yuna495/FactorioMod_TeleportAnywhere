@@ -14,11 +14,11 @@ local function setup_player(player)
   end
 
   State.get_player(player.index)
+  Gui.remove_legacy_button(player)
   Gui.cancel(player)
   if Runtime.is_space_age_enabled() then
     Planets.mark_player_planet(player)
   end
-  Gui.ensure_button(player)
 end
 
 local function setup_all_players()
@@ -108,4 +108,10 @@ script.on_event(defines.events.on_player_cursor_stack_changed, Gui.handle_cursor
 
 script.on_event(Constants.inputs.toggle_gui, function(event)
   Gui.toggle(game.get_player(event.player_index))
+end)
+
+script.on_event(defines.events.on_lua_shortcut, function(event)
+  if event.prototype_name == Constants.prototypes.shortcut then
+    Gui.toggle(game.get_player(event.player_index))
+  end
 end)

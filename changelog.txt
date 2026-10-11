@@ -1,4 +1,12 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.3
+Date: 12. 10. 2026
+  Changes:
+    - Moved the Teleport launcher to Factorio's standard bottom shortcut bar, using the existing icon.
+    - Removed the old upper-left launcher on update without removing other mods' buttons or shared containers.
+    - Synchronized shortcut highlighting with active map selection and the planet retry panel.
+    - Preserved Alt+M, customized key bindings and the existing teleport workflow.
+---------------------------------------------------------------------------------------------------
 Version: 1.0.2
 Date: 06. 10. 2026
   Features:

@@ -1,7 +1,8 @@
 local Constants = {}
 
 Constants.prototypes = {
-  map_tool = "teleport-anywhere-map-tool"
+  map_tool = "teleport-anywhere-map-tool",
+  shortcut = "teleport-anywhere-toggle"
 }
 
 Constants.inputs = {
@@ -9,7 +10,7 @@ Constants.inputs = {
 }
 
 Constants.gui = {
-  toggle_button = "teleport_anywhere_toggle_button",
+  legacy_toggle_button = "teleport_anywhere_toggle_button",
   frame = "teleport_anywhere_frame",
   close_button = "teleport_anywhere_close_button",
   planet_list = "teleport_anywhere_planet_list"

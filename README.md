@@ -19,7 +19,7 @@ This means you can reduce the time spent traveling across large factories or bet
 
 Teleport to a selected location on your current surface.
 
-1. Press **Alt+M** or click the Teleport Anywhere icon in the upper-left corner.
+1. Press **Alt+M** or click the Teleport Anywhere icon in the bottom shortcut bar.
 2. Remote View opens on your physical surface with the selection tool ready.
 3. Select an area to teleport near its center. There is no Map Teleport button.
 
@@ -126,9 +126,11 @@ Use the normal Space Age systems for Space Platform travel.
 
 ## Controls
 
-### GUI
+### Shortcut Bar
 
-A Teleport Anywhere icon is displayed in the upper-left corner of the game screen.
+A Teleport Anywhere icon is available in Factorio's standard bottom shortcut bar.
+
+If the icon is missing, enable **Teleport Anywhere** in the shortcut bar settings. Visibility and ordering follow your standard Factorio settings; no research is required. The icon is highlighted while destination selection or the planet panel is active, including after a failed planet teleport.
 
 Click it to start destination selection or cancel the active teleport operation.
 
@@ -235,9 +237,9 @@ Map Teleport is fully available without Space Age.
 
 ---
 
-## Updating to 1.0.2
+## Updating to 1.0.3
 
-Updating clears old teleport panels and temporary selection tools while preserving your force's visited planets. Existing saves do not require a reset.
+The launcher moves from the upper-left MOD GUI to the bottom shortcut bar. Updating removes only Teleport Anywhere's old launcher button; other mods' buttons and shared GUI containers are preserved. The Space Age planet panel remains at the upper left. Existing saves, visited-planet records, Alt+M and customized key bindings are preserved. Active teleport operations are cleared on update.
 
 ## Verification
 

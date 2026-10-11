@@ -47,6 +47,14 @@ local function player(index)
   local p = {valid = true, index = index, physical_surface = surface1, surface = surface1,
     physical_position = {x = 0, y = 0}, controller_type = defines.controllers.character,
     force = force, buttons = element({}), frames = element({}), messages = {}}
+  p.gui = {top = element({})}
+  local top_frame = p.gui.top.add({name = 'mod_gui_top_frame'})
+  p.buttons = top_frame.add({name = 'mod_gui_inner_frame'})
+  p.shortcuts = {}
+  p.set_shortcut_toggled = function(name, value)
+    assert(name == C.prototypes.shortcut and type(value) == 'boolean')
+    p.shortcuts[name] = value
+  end
   p.print = function(msg) p.messages[#p.messages + 1] = msg[1] end
   local stack = {valid_for_read = false}
   stack.clear = function() stack.valid_for_read = false; stack.name = nil; event('on_player_cursor_stack_changed', p) end
@@ -100,6 +108,8 @@ local function frame(p) return p.frames[C.gui.frame] end
 local function closed(p)
   assert(not state(p).map_selecting and not state(p).gui_open and not state(p).origin_surface_index)
   assert(not frame(p))
+  assert(p.shortcuts[C.prototypes.shortcut] == false)
+  assert(not p.buttons[C.gui.legacy_toggle_button])
   assert(not p.cursor_stack or not p.cursor_stack.valid_for_read or p.cursor_stack.name ~= C.prototypes.map_tool)
 end
 local function click_planet(p)
@@ -119,14 +129,51 @@ for _, sa in ipairs({false, true}) do
   test('start and repeat key cancel' .. suffix, function()
     local p = reset(sa); handlers[C.inputs.toggle_gui]({player_index = 1})
     assert(state(p).map_selecting and p.controller_type == defines.controllers.remote)
+    assert(p.shortcuts[C.prototypes.shortcut])
     assert((frame(p) ~= nil) == sa and not p.opened)
     handlers[C.inputs.toggle_gui]({player_index = 1}); closed(p)
     assert(p.controller_type == defines.controllers.character)
     Gui.cancel(p); closed(p)
   end)
   test('icon start and cancel' .. suffix, function()
-    local p = reset(sa); local e = {player_index = 1, element = p.buttons[C.gui.toggle_button]}
-    Gui.handle_click(e); assert(state(p).map_selecting); Gui.handle_click(e); closed(p)
+    local p = reset(sa); local e = {player_index = 1, prototype_name = C.prototypes.shortcut}
+    handlers.on_lua_shortcut(e); assert(state(p).map_selecting and p.shortcuts[C.prototypes.shortcut])
+    handlers.on_lua_shortcut(e); closed(p)
+  end)
+  test('other shortcuts ignored' .. suffix, function()
+    local p = reset(sa)
+    handlers.on_lua_shortcut({player_index = 1, prototype_name = 'another-mod-shortcut'})
+    closed(p)
+    Gui.toggle(p)
+    handlers.on_lua_shortcut({player_index = 1, prototype_name = 'another-mod-shortcut'})
+    assert(state(p).map_selecting and p.shortcuts[C.prototypes.shortcut])
+  end)
+  test('old icon migration preserves both containers and other mods' .. suffix, function()
+    local p = reset(sa)
+    local legacy = p.gui.top.add({name = 'mod_gui_button_flow'})
+    for _, flow in ipairs({legacy, p.buttons}) do
+      flow.add({name = C.gui.legacy_toggle_button})
+      flow.add({name = 'other_mod_button'})
+    end
+    configure()
+    for _, flow in ipairs({legacy, p.buttons}) do
+      assert(flow.valid and flow.other_mod_button.valid and not flow[C.gui.legacy_toggle_button])
+    end
+    handlers[C.inputs.toggle_gui]({player_index = 1})
+    assert(state(p).map_selecting and p.shortcuts[C.prototypes.shortcut])
+    for _, id in ipairs({'on_player_created', 'on_player_joined_game', 'on_player_respawned'}) do
+      event(id, p); closed(p)
+    end
+  end)
+  test('cleanup does not create top containers' .. suffix, function()
+    local p = reset(sa); p.gui.top = element({})
+    Gui.remove_legacy_button(p)
+    assert(#p.gui.top.children == 0)
+  end)
+  test('blueprint cursor preserved' .. suffix, function()
+    local p = reset(sa); p.cursor_stack.set_stack({name = 'blueprint', count = 1})
+    handlers.on_lua_shortcut({player_index = 1, prototype_name = C.prototypes.shortcut})
+    closed(p); assert(p.cursor_stack.name == 'blueprint' and p.cursor_stack.count == 1)
   end)
   test('same-surface center and completion' .. suffix, function()
     local p = reset(sa); Gui.toggle(p); select(p, surface1); closed(p)
@@ -181,12 +228,12 @@ for _, sa in ipairs({false, true}) do
     State.get_force_planets('player')['saved-planet'] = true
     configure(); closed(p); assert(State.get_force_planets('player')['saved-planet'])
     assert(p.controller_type == defines.controllers.remote)
-    assert(p.buttons[C.gui.toggle_button].tooltip[1] == 'teleport-anywhere.open-tooltip')
+    assert(not p.buttons[C.gui.legacy_toggle_button])
   end)
   test('two player isolation' .. suffix, function()
     local p = reset(sa); local q = player(2); game.players[2] = q
     Gui.toggle(p); Gui.toggle(q); Gui.cancel(p); closed(p)
-    assert(state(q).map_selecting and q.cursor_stack.valid_for_read); Gui.cancel(q); closed(q)
+    assert(state(q).map_selecting and q.cursor_stack.valid_for_read and q.shortcuts[C.prototypes.shortcut]); Gui.cancel(q); closed(q)
   end)
 end
  test('Space Age platform and non-planet rejected', function()
@@ -199,6 +246,7 @@ end)
 test('planet failure preserves panel, retry uses nearest pad', function()
   local p = reset(true); surface2.blocked = true; Gui.toggle(p); click_planet(p)
   assert(state(p).gui_open and not state(p).map_selecting and not p.cursor_stack.valid_for_read)
+  assert(p.shortcuts[C.prototypes.shortcut])
   event('on_player_cursor_stack_changed', p); assert(frame(p))
   select(p, surface1); assert(frame(p) and not state(p).map_selecting)
   surface2.blocked = false
@@ -218,5 +266,19 @@ test('close and gui-closed cancel', function()
   local p = reset(true); Gui.toggle(p)
   Gui.handle_closed({player_index = 1, element = frame(p)}); closed(p)
   Gui.toggle(p); Gui.handle_click({player_index = 1, element = {valid = true, name = C.gui.close_button}}); closed(p)
+end)
+test('data-stage shortcut definition and unchanged input', function()
+  local definitions = {}
+  data = {extend = function(_, entries)
+    for _, entry in ipairs(entries) do definitions[entry.name] = entry end
+  end}
+  require('data')
+  local shortcut = definitions[C.prototypes.shortcut]
+  assert(shortcut.type == 'shortcut' and shortcut.action == 'lua' and shortcut.toggleable)
+  assert(shortcut.associated_control_input == C.inputs.toggle_gui and not shortcut.technology_to_unlock)
+  assert(shortcut.icon == '__TeleportAnywhere__/data/GUI_icon.png' and shortcut.icon_size == 128)
+  assert(shortcut.small_icon == shortcut.icon and shortcut.small_icon_size == 128)
+  local input = definitions[C.inputs.toggle_gui]
+  assert(input.type == 'custom-input' and input.key_sequence == 'ALT + M' and input.action == 'lua')
 end)
 print('PASS ' .. count .. ' regression cases')

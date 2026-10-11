@@ -11,6 +11,19 @@ end
 
 data:extend({
   {
+    type = "shortcut",
+    name = Constants.prototypes.shortcut,
+    action = "lua",
+    toggleable = true,
+    associated_control_input = Constants.inputs.toggle_gui,
+    localised_name = { "shortcut-name.teleport-anywhere-toggle" },
+    localised_description = { "shortcut-description.teleport-anywhere-toggle" },
+    icon = "__TeleportAnywhere__/data/GUI_icon.png",
+    icon_size = 128,
+    small_icon = "__TeleportAnywhere__/data/GUI_icon.png",
+    small_icon_size = 128
+  },
+  {
     type = "custom-input",
     name = Constants.inputs.toggle_gui,
     key_sequence = "ALT + M",

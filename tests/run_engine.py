@@ -21,18 +21,22 @@ for name in ("saves", "script-output", "temp", "scenarios", "archive"):
     (work / name).mkdir()
 mod = work / "mods" / "TeleportAnywhere"
 mod.mkdir(parents=True)
-for name in ("info.json", "control.lua", "data.lua", "scripts", "data", "locale", "tests"):
-    origin = source / name
-    if origin.is_dir():
-        shutil.copytree(origin, mod / name)
-    else:
-        shutil.copy2(origin, mod / name)
+# Copy only known source/assets; never copy or read environment-variable files.
+files = [pathlib.Path(name) for name in (
+    "info.json", "control.lua", "data.lua", "data/GUI_icon.png",
+    "locale/en/locale.cfg", "locale/ja/locale.cfg", "tests/engine.lua",
+    "scripts/constants.lua", "scripts/gui.lua", "scripts/planet_teleport.lua",
+    "scripts/planets.lua", "scripts/runtime.lua", "scripts/state.lua", "scripts/teleport.lua")]
+for relative in files:
+    destination = mod / relative
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(source / relative, destination)
 control = mod / "control.lua"
 control.write_text('local ui_tests = require("tests.engine")\n' + control.read_text(encoding="utf-8").replace(
     "script.on_init(setup_all_players)",
-    'script.on_init(function() setup_all_players(); ui_tests.run() end)').replace(
+    'script.on_init(function() setup_all_players(); ui_tests.run(setup_all_players) end)').replace(
     "script.on_configuration_changed(setup_all_players)",
-    'script.on_configuration_changed(function() setup_all_players(); ui_tests.run() end)'), encoding="utf-8")
+    'script.on_configuration_changed(function() setup_all_players(); ui_tests.run(setup_all_players) end)'), encoding="utf-8")
 mods = [{"name": "base", "enabled": True}, {"name": "TeleportAnywhere", "enabled": True}]
 mods += [{"name": name, "enabled": args.space_age} for name in ("quality", "elevated-rails", "space-age")]
 (work / "mods" / "mod-list.json").write_text(json.dumps({"mods": mods}), encoding="utf-8")
