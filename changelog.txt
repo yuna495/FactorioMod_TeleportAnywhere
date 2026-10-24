@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.1.0
+Date: 25. 10. 2026
+  Changes:
+    - Updated Factorio compatibility to 2.1 without changing teleport features or behavior.
+    - Preserved existing visited-planet storage, controls and optional Space Age support.
+---------------------------------------------------------------------------------------------------
 Version: 1.0.3
 Date: 12. 10. 2026
   Changes:

@@ -14,10 +14,32 @@ PNG (never environment-variable files), plus the supplied save into a unique dir
 save, installed mod-list and normal Factorio config are never written. Test
 instrumentation exists only in the copy. Without `--save`, the runner creates a
 new map and checks loading only (there is no player to exercise player APIs).
-Use a Factorio 2.0 save with a player; scripts in the copied save and its removed
+Use a Factorio 2.0 or 2.1 save with a player; scripts in the copied save and its removed
 mods may affect whether a particular source save can load.
 
-## Results (2026-10-12, version 1.0.3)
+## Results (2026-10-25, version 1.1.0)
+
+- Target: Factorio 2.1 (`base >= 2.1.0`), with Space Age optional. No production
+  Lua, prototypes, identifiers, assets or storage structures changed.
+- Existing Lua regression harness: **42 cases passed**; all production and test
+  Lua files passed syntax checks.
+- Factorio **2.1.23** engine, using isolated copies of the existing test save:
+  **24 base-only assertions and 30 Space Age assertions passed**. Both runs load
+  the data/runtime stages and exercise player APIs through scripted handlers.
+  Original saves and installed configuration were not modified.
+- Checked the [official 2.1 change history](https://wiki.factorio.com/Version_history/2.1.0)
+  and [2.1.23 API documentation](https://lua-api.factorio.com/2.1.23/).
+  `LuaPlayer.teleport()` no longer implicitly exits Remote View in 2.1; the
+  existing implementation explicitly exits before its player fallback and
+  after successful character movement, so no runtime change was needed.
+  Selection events retain the existing `area`, `surface` and `item` fields;
+  new preselection events are not needed for the existing workflow.
+- Interactive input, a real 1.0.3 save upgrade with visited-planet records,
+  Cargo Landing Pad/spawn arrival coverage in the engine, modded planets and
+  live multiplayer still need the checks below. The unit harness covers pad
+  selection and spawn fallback with fake objects.
+
+## Previous results (2026-10-12, version 1.0.3)
 
 - Lua 5.4 regression harness: **42 cases passed**. It loads the actual modules,
   control handlers and data definitions with fake Factorio objects. Both base-only

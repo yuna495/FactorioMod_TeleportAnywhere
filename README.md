@@ -1,6 +1,6 @@
 # Teleport Anywhere
 
-**Teleport Anywhere** is a player-only teleportation mod for Factorio 2.0.
+**Teleport Anywhere** is a player-only teleportation mod for Factorio 2.1.
 
 It allows you to instantly teleport to a selected location on the current surface.
 
@@ -39,7 +39,7 @@ If no safe position can be found, the teleport is cancelled.
 
 Space Age is an **optional dependency**.
 
-### Factorio 2.0 without Space Age
+### Factorio 2.1 without Space Age
 
 The following features are available:
 
@@ -47,7 +47,7 @@ The following features are available:
 * Destination selection through Remote View
 * Automatic safe-position search
 
-### Factorio 2.0 + Space Age
+### Factorio 2.1 + Space Age
 
 In addition to the features above, you can use:
 
@@ -230,12 +230,16 @@ In other words, the mod reduces **player travel time** without replacing the log
 
 ## Requirements
 
-* Factorio 2.0
+* Factorio 2.1
 * Space Age (optional)
 
 Map Teleport is fully available without Space Age.
 
 ---
+
+## Updating to 1.1.0
+
+Version 1.1.0 targets Factorio 2.1. Teleport features, controls, arrival rules and persistent data structures are unchanged. Existing visited-planet records and customized key bindings are preserved; active teleport operations are cleared on update as before. For Factorio 2.0, use version 1.0.3.
 
 ## Updating to 1.0.3
 
